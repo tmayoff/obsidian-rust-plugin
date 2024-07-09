@@ -2,11 +2,19 @@
   "name": "rust-plugin",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "dev": "vite build --mode development --watch",
+    "build": "vite build --mode production"
+  },
   "devDependencies": {
     "@types/bun": "latest",
+    "builtin-modules": "^4.0.0",
     "vite": "^5.3.3"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "obsidian": "^1.5.7-1"
   }
 }
