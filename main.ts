@@ -9,7 +9,9 @@ export default class SamplePlugin extends Plugin {
 
         await initWasm(wasmData);
 
-        onload();
+        await this.loadSettings();
+
+        onload(this);
     }
 
     async loadSettings() {}
