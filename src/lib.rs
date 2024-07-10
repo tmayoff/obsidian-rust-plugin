@@ -1,31 +1,41 @@
 use gloo::console::log;
-use obsidian_rs::{Notice, Plugin};
+use obsidian_rs::{Command, Notice, Plugin};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 pub fn onload(plugin: &Plugin) {
     log!("Loaded");
 
-    plugin.addRibbonIcon(
+    // This creates an icon in the left ribbon.
+    let ribbon_icon_el = plugin.addRibbonIcon(
         "dice",
         "Sample Plugin",
-        &Closure::new(|| {
+        Closure::<dyn FnMut()>::new(|| {
+            // Called when the user clicks the icon.
             Notice::new("This is a notice!");
-        }),
+        })
+        .into_js_value(),
     );
-    // This creates an icon in the left ribbon.
-    // const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
-    // 	// Called when the user clicks the icon.
-    // 	new Notice('This is a notice!');
-    // });
-    // // Perform additional things with the ribbon
-    // ribbonIconEl.addClass('my-plugin-ribbon-class');
+    // Perform additional things with the ribbon
+    ribbon_icon_el
+        .class_list()
+        .add_1("my-plugin-ribbon-class")
+        .unwrap();
 
-    // // This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-    // const statusBarItemEl = this.addStatusBarItem();
-    // statusBarItemEl.setText('Status Bar Text');
+    // This adds a status bar item to the bottom of the app. Does not work on mobile apps.
+    let status_bar_item_el = plugin.addStatusBarItem();
+    status_bar_item_el.set_text_content(Some("Status Bar Text"));
 
-    // // This adds a simple command that can be triggered anywhere
+    // This adds a simple command that can be triggered anywhere
+    plugin.addCommand(Command::new(
+        "open-sample-modal-simple",
+        "Open sample modal (simple)",
+        || {
+            // 		new SampleModal(this.app).open();
+            Notice::new("COmmand");
+        },
+    ));
+
     // this.addCommand({
     // 	id: 'open-sample-modal-simple',
     // 	name: 'Open sample modal (simple)',
