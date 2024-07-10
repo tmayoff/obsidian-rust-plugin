@@ -1,45 +1,38 @@
-use wasm_bindgen::prelude::*;
+use wasm::Command;
+use wasm_bindgen::closure::Closure;
+use web_sys::Element;
 
-#[wasm_bindgen]
-pub struct Command {
-    id: String,
-    name: String,
-    callback: JsValue,
+pub use wasm::Notice;
+
+pub mod wasm;
+
+pub struct Plugin {
+    plugin: wasm::Plugin,
 }
 
-impl Command {
-    pub fn new<F: 'static>(id: &str, name: &str, callback: F) -> Self
-    where
-        F: FnMut(),
-    {
-        Self {
-            id: id.to_string(),
-            name: name.to_string(),
-            callback: Closure::<dyn FnMut()>::new(callback).into_js_value(),
-        }
+impl From<wasm::Plugin> for Plugin {
+    fn from(plugin: wasm::Plugin) -> Self {
+        Plugin { plugin }
     }
 }
 
-#[wasm_bindgen]
-extern "C" {
-    pub type Plugin;
+impl Plugin {
+    pub fn add_command<F: 'static>(&self, id: &str, name: &str, callback: F)
+    where
+        F: FnMut(),
+    {
+        self.plugin.addCommand(Command::new(id, name, callback))
+    }
 
-    #[wasm_bindgen(structural, method)]
-    pub fn addCommand(this: &Plugin, command: Command);
+    pub fn add_ribbon_icon<F: 'static>(&self, id: &str, name: &str, callback: F) -> Element
+    where
+        F: FnMut(),
+    {
+        self.plugin
+            .addRibbonIcon(id, name, Closure::new(callback).into_js_value())
+    }
 
-    #[wasm_bindgen(structural, method)]
-    pub fn addRibbonIcon(
-        this: &Plugin,
-        id: &str,
-        name: &str,
-        callback: JsValue,
-    ) -> web_sys::Element;
-
-    #[wasm_bindgen(structural, method)]
-    pub fn addStatusBarItem(this: &Plugin) -> web_sys::Element;
-
-    pub type Notice;
-
-    #[wasm_bindgen(constructor)]
-    pub fn new(message: &str) -> Notice;
+    pub fn add_status_bar_item(&self) -> Element {
+        self.plugin.addStatusBarItem()
+    }
 }

@@ -1,21 +1,22 @@
 use gloo::console::log;
-use obsidian_rs::{Command, Notice, Plugin};
+use obsidian_rs::wasm;
+use obsidian_rs::Notice;
+use obsidian_rs::Plugin;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
-pub fn onload(plugin: &Plugin) {
+pub fn onload(raw_plugin: wasm::Plugin) {
     log!("Loaded");
 
+    let plugin = Plugin::from(raw_plugin);
+
     // This creates an icon in the left ribbon.
-    let ribbon_icon_el = plugin.addRibbonIcon(
-        "dice",
-        "Sample Plugin",
-        Closure::<dyn FnMut()>::new(|| {
+    let ribbon_icon_el = plugin.add_ribbon_icon("dice", "Sample Plugin", || {
+        {
             // Called when the user clicks the icon.
             Notice::new("This is a notice!");
-        })
-        .into_js_value(),
-    );
+        }
+    });
     // Perform additional things with the ribbon
     ribbon_icon_el
         .class_list()
@@ -23,18 +24,18 @@ pub fn onload(plugin: &Plugin) {
         .unwrap();
 
     // This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-    let status_bar_item_el = plugin.addStatusBarItem();
+    let status_bar_item_el = plugin.add_status_bar_item();
     status_bar_item_el.set_text_content(Some("Status Bar Text"));
 
     // This adds a simple command that can be triggered anywhere
-    plugin.addCommand(Command::new(
+    plugin.add_command(
         "open-sample-modal-simple",
         "Open sample modal (simple)",
         || {
             // 		new SampleModal(this.app).open();
             Notice::new("COmmand");
         },
-    ));
+    );
 
     // this.addCommand({
     // 	id: 'open-sample-modal-simple',
